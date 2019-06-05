@@ -1,0 +1,126 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+rule ManagerOnlyCanAddFunds {
+    description: "Only manager can add money to the funds"
+    participant: "payroll.Manager"
+    operation: ALL
+    resource: "payroll.fundFill"
+    action: ALLOW
+}
+
+rule ManagerCanSeeFunds {
+    description: "Only manager can add money to the funds"
+    participant: "payroll.Manager"
+    operation: ALL
+    resource: "payroll.Fund"
+    transaction: "payroll.fundFill"
+    action: ALLOW
+}
+
+rule ManagerCanSeeHisProfile{
+  description: "Manager can see his profile"
+  participant(p): "payroll.Manager"
+  operation: ALL
+  resource(r): "payroll.Manager"
+  condition: (p.managerId == r.managerId)
+  action: ALLOW
+  
+}
+
+rule OnlyManagerCanSeeHisWallet{
+    description: "Only Manager Can See His Wallet"
+    participant(p): "payroll.Manager"
+    operation: ALL
+    resource(r): "payroll.Wallet"
+    condition: (r.walletId == p.wallet.walletId)
+    action: ALLOW
+}
+
+rule ManagerCanSeeAllEmployees {
+  description: "Manager Can See All Employees "
+    participant: "payroll.Manager"
+    operation: ALL
+    resource: "payroll.Employee"
+    action: ALLOW
+}
+
+rule OnlyEmployeeCanSeeHisWallet{
+    description: "Only Employee Can See His Wallet"
+    participant(p): "payroll.Employee"
+    operation: ALL
+    resource(r): "payroll.Wallet"
+    condition: (r.walletId == p.wallet.walletId)
+    action: ALLOW
+}
+
+rule EmployeesCanSeeItsOwnInfo {
+  description: "Employees Can See Its Own Info  "
+    participant(p): "payroll.Employee"
+    operation: READ
+    resource(r): "payroll.Employee"
+    condition:(r.getIdentifier() == p.getIdentifier())
+    action: ALLOW
+}
+
+rule EmployeeCanTakeFromFunds{
+  description: "Employee Can only Take From Funds"
+  participant(p): "payroll.Employee"
+  operation: ALL
+  resource: "payroll.Fund"
+  transaction(tx): "payroll.employeeSalary"
+  condition: (tx.employee.getIdentifier() == p.getIdentifier())
+  action: ALLOW
+}
+
+rule ManagerOnlyCanChangeStatus{
+  description:"Only manager can change the salary status of employees"
+  participant:"payroll.Manager"
+  operation: ALL
+  resource:"payroll.statusChange"
+  action:ALLOW
+}
+
+rule ManagerCanChangeDuringTransaction{
+  description:"Manager can access employees' profile only during transaction"
+  participant:"payroll.Manager"
+  operation:ALL
+  resource:"payroll.Employee"
+  transaction:"payroll.statusChange"
+  action: ALLOW
+}
+
+rule NetworkAdminUser {
+    description: "Grant business network administrators full access to user resources"
+    participant: "org.hyperledger.composer.system.NetworkAdmin"
+    operation: ALL
+    resource: "**"
+    action: ALLOW
+}
+
+rule NetworkAdminSystem {
+    description: "Grant business network administrators full access to system resources"
+    participant: "org.hyperledger.composer.system.NetworkAdmin"
+    operation: ALL
+    resource: "org.hyperledger.composer.system.**"
+    action: ALLOW
+}
+
+rule SystemACL {
+    description: "System ACL to permit all access"
+    participant: "org.hyperledger.composer.system.Participant"
+    operation: ALL
+    resource: "org.hyperledger.composer.system.**"
+    action: ALLOW
+}
